@@ -1,0 +1,125 @@
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+public class MyMain {
+	
+	 public static short [][] grayImage;
+	 public static int width;
+	 public static int height;
+	 public static int widthSource;
+	 public static int heightSource;
+	 public static int widthTemplate;
+	 public static int heightTemplate;
+	 public static int coordinates;
+	 public static int SumDiff;
+	 public static array[] absDiffMat;
+	 public static int threshold;
+	 private static BufferedImage image;
+	
+	public static void main(String[] args) throws IOException {
+
+		String SourceName ="TenCardG.jpg";
+		String TemplateName="Template.jpg";
+		String fileNameInp = null;
+	    //readColourImage(fileNameInp);
+	    
+	    //here get height and width of source and templates
+	    File inp=new File(SourceName);
+	     image = ImageIO.read(inp);
+	     widthSource = image.getWidth();
+	     heightSource = image.getHeight();
+	     short [] [] Source_image = readColourImage(SourceName);
+	     
+	     File inpt=new File(TemplateName);
+	     image = ImageIO.read(inpt);
+	     widthTemplate = image.getWidth();
+	     heightTemplate = image.getHeight();
+	     short [] [] Temp_image = readColourImage(TemplateName);
+	     
+	     int Tempsize = widthTemplate*heightTemplate;
+	     int Minimum = 1000000;
+	     
+	     for (int i=0; i<= heightSource - heightTemplate;i++) {
+	    	 for (int j=0; j<= heightSource - heightTemplate;j++) {
+					for (int y=0; y<heightTemplate; y++) {
+						for (int x=0; x<widthTemplate; x++) {
+							SumDiff += Math.abs(Source_image[i+y][j+x] - Temp_image[y][x]);
+						}
+					}
+					double meanDiff = SumDiff/Tempsize;
+					absDiffMat[i][j]=meanDiff;
+				
+					if (meanDiff < Minimum) {
+						Minimum = meanDiff;
+					}
+				}
+			}
+
+	    int ratio=10; //for calibration
+	    int Threshold = ratio * Minimum;
+	    for (int i = 0; i < heightTemplate; i++) {
+            for (int j = 0;j < widthTemplate; j++) {
+            	System.out.print(temp_image[i][j]+ " ");
+                }
+            }
+        }
+	
+public static short [][] readColourImage(String fileName) {
+    
+    try
+    {
+     // RGB pixel values
+     byte[] pixels;
+
+     File inp=new File(fileName);
+     image = ImageIO.read(inp);
+     width = image.getWidth();
+     height = image.getHeight();          
+    
+     
+     pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+     System.out.println("Dimension of the image: WxH= " + width + " x "+height+" "+ "| num of pixels: "+ pixels.length);
+ 
+ 
+
+     //rgb2gray in a 2D array grayImage                 
+     int pr;// red
+     int pg;//  green
+     int pb;// blue     
+
+    grayImage =new short [height][width];
+    int coord;
+    for (int i=0; i<height;i++)
+ 	   for(int j=0;j<width;j++)
+ 	   {        		     
+ 		   coord= 3*(i*width+j);
+ 		   pr= ((short) pixels[coord] & 0xff); // red
+            pg= (((short) pixels[coord+1] & 0xff));//  green
+            pb= (((short) pixels[coord+2] & 0xff));// blue                
+            
+ 		   grayImage[i][j]=(short)Math.round(0.299 *pr + 0.587 * pg  + 0.114 * pb);         
+ 		   
+ 	   }  
+    }
+    catch (IOException e) {
+        e.printStackTrace();
+        } 
+    return grayImage; 
+
+}
+
+}
+
+
+/**
+* 
+* @param fileName
+* @param xCoord
+* @param yCoord
+* @param rectWidth
+* @param rectHeight
+*/
+

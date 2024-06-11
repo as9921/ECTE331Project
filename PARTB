@@ -1,0 +1,138 @@
+package projectB;
+
+	
+	class Data{
+		int A1,A2,A3,B1,B2,B3;
+		
+		boolean goFunA1 = false;
+		boolean goFunA2 = false;
+		boolean goFunA3 = false;
+		boolean goFunB1 = false;
+		boolean goFunB2 = false;
+		boolean goFunB3 = false;
+	}
+	
+public class TaskB {
+
+	
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+       Data my_sample = new Data();
+       
+       int i;
+       int test_size = 4;
+       
+       for (i=0; i<test_size; i++) {
+    	   System.out.println("loop" + i + "\n");
+    	   
+    	   my_sample.goFunB2 = false;
+    	   my_sample.goFunA2 = false;
+    	   my_sample.goFunB3 = false;
+    	   my_sample.goFunA3 = false;
+
+    	   ThreadA ta = new ThreadA(my_sample);
+    	   ThreadB tb = new ThreadB(my_sample);
+
+    	   
+    	   ta.start();
+    	   tb.start();
+    	   ta.join();
+    	   tb.join();
+       }
+	}
+
+}
+
+class ThreadA extends Thread{
+	private Data sample;
+
+	public ThreadA(Data sample) {
+		this.sample = sample;
+	}
+	
+
+	public void run() {
+		
+		synchronized(sample) {
+			int n = 500;
+			sample.A1  = n*(n+1)/2;
+			sample.goFunB2=true;
+			sample.notify();
+			//print out value of A1
+		}
+		synchronized(sample) {
+			
+			while (sample.goFunA2==false) {
+				System.out.println("First Run B2");
+				try {
+					sample.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+				
+		
+		}
+        synchronized(sample) {
+			
+			while (sample.goFunA2==true) {
+				//calculate for A2
+				sample.goFunB3 = true;
+				sample.notify();
+				break;
+	}
+}
+	}
+}
+
+
+class ThreadB extends Thread{
+	private Data sample;
+
+	public ThreadB(Data sample) {
+		this.sample = sample;
+		}	
+}
+	
+
+	public void run() {
+		
+		synchronized(sample) {
+			int n = 500;
+			sample.B1  = n*(n+1)/2;
+			sample.notify();
+			//print out value of A1
+		}
+		synchronized(sample) {
+			
+			while (sample.goFunB2=false) {
+				System.out.println("First Run A1");
+				try {
+					sample.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			synchronized(sample) {
+				
+				while (sample.goFunB2=true) {
+					int n = 200;
+				    sample.B2 = sample.A1+n*(n+1)/2;
+				    sample.goFunA2 = true;
+				    sample.notify();
+				    break;
+		
+		}
+			}
+        synchronized(sample) {
+			
+			while (sample.goFunA2==true) {
+				//calculate for A2
+				sample.goFunB3 = true;
+				sample.notify();
+				break;
+	}
+}

@@ -1,7 +1,6 @@
 package projectB;
 
-	
-	class Data{
+	class Data{   //to store all variables with a boolean function
 		int A1,A2,A3,B1,B2,B3;
 		
 		boolean goFunA1 = false;
@@ -13,13 +12,9 @@ package projectB;
 	}
 	
 public class TaskB {
+	public static void main(String[] args) throws InterruptedException {
 
-	
-	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
        Data my_sample = new Data();
-       
        int i;
        int test_size = 4;
        
@@ -34,11 +29,17 @@ public class TaskB {
     	   ThreadA ta = new ThreadA(my_sample);
     	   ThreadB tb = new ThreadB(my_sample);
 
-    	   
     	   ta.start();
     	   tb.start();
     	   ta.join();
     	   tb.join();
+           System.out.println(my_sample.A1);
+	   System.out.println(my_sample.A2);
+	   System.out.println(my_sample.A3);
+	   System.out.println(my_sample.B1);
+	   System.out.println(my_sample.B2);
+	   System.out.println(my_sample.B3);
+	   System.out.println("\n");
        }
 	}
 
@@ -68,22 +69,46 @@ class ThreadA extends Thread{
 				try {
 					sample.wait();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-				
-		
 		}
-        synchronized(sample) {
+                     synchronized(sample) {
 			
 			while (sample.goFunA2==true) {
+                                int n = 300;
+                                sample.A2 = sample.B2 + n * (n+1) / 2;
 				//calculate for A2
 				sample.goFunB3 = true;
 				sample.notify();
 				break;
 	}
 }
+                       synchronized (sample) 
+	       {
+			while (sample.goFunA3 == false)
+			{
+				try 
+				{
+					sample.wait(); // wait until Function B2 completes
+				} 
+				catch (InterruptedException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		synchronized (sample) 
+		{
+			while (sample.goFunA3 == true)
+			{
+				int n = 400;
+				sample.A3 = sample.B3 + n*(n+1)/2;
+				break;
+			}
+		}
+
 	}
 }
 
@@ -94,45 +119,68 @@ class ThreadB extends Thread{
 	public ThreadB(Data sample) {
 		this.sample = sample;
 		}	
-}
-	
-
 	public void run() {
 		
 		synchronized(sample) {
-			int n = 500;
+			int n = 250;
 			sample.B1  = n*(n+1)/2;
-			sample.notify();
-			//print out value of A1
 		}
-		synchronized(sample) {
-			
-			while (sample.goFunB2=false) {
-				System.out.println("First Run A1");
-				try {
-					sample.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+                synchronized (sample) 
+		{
+			while (sample.goFunB2 == false)
+			{
+				try 
+				{
+					sample.wait(); // waits until Function A1 completes
+				} 
+				catch (InterruptedException e) 
+				{
 					e.printStackTrace();
 				}
 			}
-			synchronized(sample) {
-				
-				while (sample.goFunB2=true) {
-					int n = 200;
-				    sample.B2 = sample.A1+n*(n+1)/2;
-				    sample.goFunA2 = true;
-				    sample.notify();
-				    break;
-		
 		}
-			}
-        synchronized(sample) {
-			
-			while (sample.goFunA2==true) {
-				//calculate for A2
-				sample.goFunB3 = true;
+
+		synchronized (sample) // function B2
+		{
+			while (sample.goFunB2 == true)
+			{
+				int n = 200;
+				sample.B2 = sample.A1 + n * (n+1) / 2;
+				sample.goFunA2 = true;
 				sample.notify();
 				break;
+			}
+		}
+
+		synchronized (sample) 
+		{
+			while (sample.goFunB3 == false)
+			{
+				try 
+				{
+					sample.wait(); // wait until Function A2 completes
+				} 
+				catch (InterruptedException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		synchronized (sample) // function B3
+		{
+			while (sample.goFunB3 == true)
+			{
+				int n = 400;
+				sample.B3 = sample.A2 + n * (n+1) / 2; // mathematical operation
+				sample.goFunA3 = true;
+				sample.notify();
+				break;
+			}
+		}
+
 	}
 }
+
+        
+		
